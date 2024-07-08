@@ -9,7 +9,6 @@ import logging
 from typing import Any
 
 import numpy as np
-from icecream import ic
 from networkx import DiGraph
 
 logger = logging.getLogger(__name__)

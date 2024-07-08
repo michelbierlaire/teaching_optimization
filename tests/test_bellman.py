@@ -8,7 +8,6 @@ Tests for the Bellman subnetwork
 
 import unittest
 
-from icecream import ic
 from networkx import DiGraph, set_node_attributes
 from teaching_optimization.networks.bellman import BellmanSubnetworks
 

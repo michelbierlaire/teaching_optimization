@@ -7,12 +7,10 @@ Tests for the shortest path algorithm
 """
 
 import unittest
+
 import numpy as np
 import pandas as pd
-import networkx as nx
-from icecream import ic
 from networkx import DiGraph
-from typing import Any
 
 from teaching_optimization.networks.shortest_path_algorithm import (
     ShortestPathAlgorithm,
