@@ -52,12 +52,12 @@ def longest_step(
     :return: the step, as well as the index of one variable that becomes zero, or None of the direction is unbounded.
     """
     alpha = np.array(
-        [-x / d if d < 0 else np.infty for x, d in zip(current_point, direction)]
+        [-x / d if d < 0 else np.inf for x, d in zip(current_point, direction)]
     )
     min_value = np.min(alpha)
-    if min_value == np.infty:
+    if min_value == np.inf:
         # The problem is unbounded.
-        return np.infty, None
+        return np.inf, None
     min_index = np.argmin(alpha)
     return min_value, min_index
 
