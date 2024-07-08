@@ -2,4 +2,4 @@
 .idea/*
 src/teaching_optimization.egg-info/*
 *.pyc
-build	
+build
