@@ -2,3 +2,6 @@
 .idea/*
 src/teaching_optimization.egg-info/*
 *.pyc
+build
+setup.cfg.keep
+setup.py.keep

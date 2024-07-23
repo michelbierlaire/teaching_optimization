@@ -33,7 +33,7 @@ class SimplexTableau:
         if len(self.identity_ones) != self.n_constraints:
             error_msg = (
                 f'A valid tableau must contain {self.n_constraints} columns of the identity matrix, '
-                f'not {len(self.identity_ones)}'
+                f'not {len(self.identity_ones)}\n{self}'
             )
             raise ValueError(error_msg)
         self.basic_indices = [element.column for element in self.identity_ones]
@@ -168,12 +168,16 @@ class SimplexTableau:
         # We need to identify where the columns of the identify matrix are, and where the ones in those columns are
         # located.
         ones = []
+        tolerance = 1.0e-5
         for col_index in range(self.n_columns):
             column = self.tableau[:, col_index]
             # Check if there's exactly one entry with 1 and the rest are 0
-            if np.sum(column == 1) == 1 and np.sum(column == 0) == self.n_rows - 1:
+            if (
+                np.sum(np.isclose(column, 1, atol=tolerance)) == 1
+                and np.sum(np.isclose(column, 0, atol=tolerance)) == self.n_rows - 1
+            ):
                 # Find the index of the 1
-                row_index = int(np.where(column == 1)[0][0])
+                row_index = int(np.where(np.isclose(column, 1, atol=tolerance))[0][0])
                 ones.append(RowColumn(row_index, col_index))
         return ones
 

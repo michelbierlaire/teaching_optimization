@@ -37,6 +37,8 @@ class TestSimplexTableauPhaseTwo(unittest.TestCase):
         tableau = SimplexTableau(deepcopy(self.initial_tableau))
         algorithm = SimplexTableauPhaseTwo(initial_tableau=tableau)
         algorithm.tableau.tableau[-1] = np.array([0, 0, 0, 0, 1])
+        # As the first tableau is always generated, we need to skip it first
+        next(algorithm)
         with self.assertRaises(StopIteration):
             next(algorithm)
         self.assertEqual(algorithm.stopping_cause, CauseInterruptionIterations.OPTIMAL)
@@ -47,6 +49,8 @@ class TestSimplexTableauPhaseTwo(unittest.TestCase):
         tableau = SimplexTableau(deepcopy(self.initial_tableau))
         algorithm = SimplexTableauPhaseTwo(initial_tableau=tableau)
         algorithm.tableau.tableau[:, 0] = np.array([-1, -1, -1])
+        # As the first tableau is always generated, we need to get it first
+        next(algorithm)
         with self.assertRaises(StopIteration):
             next(algorithm)
         self.assertEqual(
@@ -58,6 +62,8 @@ class TestSimplexTableauPhaseTwo(unittest.TestCase):
         # This test needs to be designed based on specific data that will lead to a pivot
         tableau = SimplexTableau(deepcopy(self.initial_tableau))
         algorithm = SimplexTableauPhaseTwo(initial_tableau=tableau)
+        # The first tableau is always generated. We skipit first.
+        next(algorithm)
         try:
             next(algorithm)  # Perform one iteration
         except StopIteration:

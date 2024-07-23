@@ -102,6 +102,11 @@ class SimplexTableauPhaseTwo:
         return row_index
 
     def __next__(self) -> SimplexTableau:
+        # The first tableau should be yielded in any case
+        if self.current_iteration == 0:
+            # Yield the initial tableau before any iteration
+            self.current_iteration += 1
+            return deepcopy(self.tableau)
         pivot_column = self.column_entering_basis()
         if pivot_column is None:
             # Optimal solution found.
