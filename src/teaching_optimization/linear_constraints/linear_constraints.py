@@ -256,7 +256,7 @@ class AllConstraints:
             }
         return self._constraint_indices
 
-    def __str__(self) -> str:
+    def report(self) -> str:
         column_width = self.calculate_column_width()
 
         if self.constraints is None:
@@ -277,7 +277,10 @@ class AllConstraints:
             f'{variable.name} {dict_of_sign[variable.sign]}'
             for variable in sorted_variables
         ]
-        return '\n'.join(constraints)
+        return constraints
+
+    def __str__(self) -> str:
+        return '\n'.join(self.report())
 
     def _detect_unsigned_variables(self) -> None:
         unsigned_variables = [
