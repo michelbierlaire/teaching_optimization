@@ -46,7 +46,7 @@ def draw_network(
 
     # Draw edges with curved connections
     nx.draw_networkx_edges(
-        the_network, positions, edgelist=curved_edges, connectionstyle='arc3,rad=0.2'
+        the_network, positions, edgelist=curved_edges, connectionstyle='arc3,rad=-0.2'
     )
     nx.draw_networkx_edges(the_network, positions, edgelist=straight_edges)
 
