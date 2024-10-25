@@ -125,8 +125,9 @@ class MarkdownBlock(Block):
 class DocstringBlock(Block):
     """A docstring block is a sequence of lines between triple quotations mark"""
 
-    def __init__(self, lines: list[str]) -> None:
+    def __init__(self, lines: list[str], docstring_as_code: bool) -> None:
         super().__init__(lines)
+        self.as_code = docstring_as_code
 
     def first_line(self, index: int) -> bool:
         if index >= len(self.lines):
@@ -153,6 +154,10 @@ class DocstringBlock(Block):
             self.end = len(self.lines)
 
     def clean_block(self) -> None:
+        if self.as_code:
+            # If the block is interpreted as code, the triple quote should not be removed.
+            # This is important for otter-grader.
+            return
         if self.start is None or self.end is None:
             raise AssertionError('Both should be set')
         # Remove the triple quotes
@@ -163,6 +168,8 @@ class DocstringBlock(Block):
 
     def get_cell(self) -> NotebookNode:
         the_block = self.get_block()
+        if self.as_code:
+            return new_code_cell('\n'.join(the_block))
         return new_markdown_cell('\n'.join(the_block))
 
 
@@ -208,10 +215,10 @@ class CodeBlock(Block):
         return new_code_cell('\n'.join(the_block))
 
 
-def extract_next_block(lines: list[str]) -> NotebookNode:
+def extract_next_block(lines: list[str], docstring_as_code: bool) -> NotebookNode:
     start_index = 0
     a_markdown_block = MarkdownBlock(lines=lines)
-    a_docstring_block = DocstringBlock(lines=lines)
+    a_docstring_block = DocstringBlock(lines=lines, docstring_as_code=docstring_as_code)
     a_code_block = CodeBlock(
         lines=lines, other_blocks=[a_docstring_block, a_markdown_block]
     )
@@ -250,10 +257,10 @@ def preprocess(lines: list[str], separator: str) -> tuple[list[str], list[str]]:
     return list_before, list_after
 
 
-def generate_notebook(lines: list[str], filename: str) -> None:
+def generate_notebook(lines: list[str], filename: str, docstring_as_code: bool) -> None:
     notebook = new_notebook()
 
-    for cell in extract_next_block(lines):
+    for cell in extract_next_block(lines, docstring_as_code):
         notebook.cells.append(cell)
 
     # Write the notebook to the new file
@@ -262,7 +269,9 @@ def generate_notebook(lines: list[str], filename: str) -> None:
     print(f'File {filename} created.')
 
 
-def script_to_notebook(input_script: str, splitting: SplitTuple | None):
+def script_to_notebook(
+    input_script: str, splitting: SplitTuple | None, docstring_as_code: bool = False
+):
 
     with open(input_script, 'r') as file:
         lines = file.readlines()
@@ -275,13 +284,23 @@ def script_to_notebook(input_script: str, splitting: SplitTuple | None):
         )
 
         before_notebook = f'{base_name}_{splitting.before_file_extension}.ipynb'
-        generate_notebook(lines=before_lines, filename=before_notebook)
+        generate_notebook(
+            lines=before_lines,
+            filename=before_notebook,
+            docstring_as_code=docstring_as_code,
+        )
         after_notebook = f'{base_name}_{splitting.after_file_extension}.ipynb'
-        generate_notebook(lines=after_lines, filename=after_notebook)
+        generate_notebook(
+            lines=after_lines,
+            filename=after_notebook,
+            docstring_as_code=docstring_as_code,
+        )
         return
 
     notebook = f'{base_name}.ipynb'
-    generate_notebook(lines=lines, filename=notebook)
+    generate_notebook(
+        lines=lines, filename=notebook, docstring_as_code=docstring_as_code
+    )
 
 
 if __name__ == '__main__':
