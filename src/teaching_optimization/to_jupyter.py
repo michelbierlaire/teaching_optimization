@@ -169,7 +169,8 @@ class DocstringBlock(Block):
     def get_cell(self) -> NotebookNode:
         the_block = self.get_block()
         if self.as_code:
-            return new_code_cell('\n'.join(the_block))
+            # return new_code_cell('\n'.join(the_block))
+            return new_code_cell(the_block)
         return new_markdown_cell('\n'.join(the_block))
 
 
