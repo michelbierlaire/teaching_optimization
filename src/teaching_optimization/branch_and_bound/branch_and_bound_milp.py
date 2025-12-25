@@ -57,7 +57,7 @@ class LinearProblem(Subproblem):
         """Branch on a non integer solution"""
 
         if self.solution is None:
-            raise ValueError(f'No lower bound has been calculated yet.')
+            raise ValueError('No lower bound has been calculated yet.')
 
         size = len(self.solution.solution)
         index_for_branching = first_non_integer_index(self.solution.solution)
