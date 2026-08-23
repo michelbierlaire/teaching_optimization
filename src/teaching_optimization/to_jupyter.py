@@ -192,7 +192,9 @@ class DocstringBlock(Block):
         raw = textwrap.dedent(raw).strip("\n")
         cleaned = raw.split("\n") if raw else []
         self.lines[self.start : self.end] = cleaned
-        self.end = self.start + len(cleaned)
+        # ``end`` is a property whose setter calls ``clean_block``. Update the
+        # backing field directly here to avoid recursively cleaning the block.
+        self._end = self.start + len(cleaned)
 
     def get_cell(self) -> NotebookNode:
         source = "\n".join(self.get_block())
@@ -384,22 +386,29 @@ def _parse_default_range(
         line_number = index + 1
         is_docstring = docstring_span and docstring_span[0] <= line_number <= docstring_span[1]
         if is_docstring:
-            new_kind = "code" if docstring_as_code else "markdown"
-            if kind is not None and kind != new_kind:
+            if kind is not None:
                 flush()
-            if kind is None:
-                kind = new_kind
-                current_start = line_number
-            current.append((lines[index], False))
-            current_end = line_number
-            if new_kind == "markdown" and line_number == docstring_span[0]:
-                cleaned = _module_docstring_text(
-                    "".join(lines[index : docstring_span[1]]),
-                    (1, docstring_span[1] - docstring_span[0] + 1),
+            raw_docstring = "".join(lines[docstring_span[0] - 1 : docstring_span[1]])
+            if docstring_as_code:
+                _append_spec(
+                    specs,
+                    "code",
+                    raw_docstring,
+                    docstring_span[0],
+                    docstring_span[1],
                 )
-                current.pop()
-                current.extend((line, False) for line in cleaned.split("\n"))
-                current_end = docstring_span[1]
+            else:
+                _append_spec(
+                    specs,
+                    "markdown",
+                    _module_docstring_text(source="".join(lines), span=docstring_span),
+                    docstring_span[0],
+                    docstring_span[1],
+                )
+            kind = None
+            current = []
+            current_start = docstring_span[1] + 1
+            current_end = docstring_span[1]
             index = docstring_span[1]
             continue
 

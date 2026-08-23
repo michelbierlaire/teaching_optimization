@@ -28,7 +28,7 @@ class TestSimplexTableauPhaseTwo(unittest.TestCase):
         standard_b = np.array([6, 2])
         standard_c = np.array([-4, 3, 0, 0])
         Ab = np.column_stack((standard_a, standard_b))
-        self.initial_tableau = np.row_stack((Ab, np.append(standard_c, 0)))
+        self.initial_tableau = np.vstack((Ab, np.append(standard_c, 0)))
 
     def test_optimal_solution_detection(self):
         # Manually set the tableau to an optimal state if necessary

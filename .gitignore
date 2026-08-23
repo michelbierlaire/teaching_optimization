@@ -3,5 +3,9 @@
 src/teaching_optimization.egg-info/*
 *.pyc
 build
+dist
+.venv
+.tox
+.pytest_cache
 setup.cfg.keep
 setup.py.keep

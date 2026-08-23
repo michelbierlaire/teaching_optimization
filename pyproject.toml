@@ -43,9 +43,19 @@ download = "https://pypi.org/project/teaching-optimization"
 
 [project.optional-dependencies]
 testing = [
-    "pytest >= 8.3.1"   ,
+    "pytest >= 8.3.1",
     "pytest-cov >= 5.0.0",
     "tox >= 4.16.0"
+]
+
+[dependency-groups]
+dev = [
+    "build >= 1.2.2",
+    "pytest >= 8.3.1",
+    "pytest-cov >= 5.0.0",
+    "tox >= 4.16.0",
+    "tox-gh-actions >= 3.2.0",
+    "twine >= 5.1.1"
 ]
 
 [tool.setuptools.packages.find]
