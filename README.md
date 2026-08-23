@@ -6,7 +6,7 @@ Various optimization algorithms used for teaching.
 ## Script-to-notebook conversion
 
 The project includes a converter for Python teaching scripts. See the
-[script conversion guide](https://github.com/michelbierlaire/teaching_optimization/blob/v0.1.0/SCRIPT_CONVERSION_GUIDE.md) for the cell
+[script conversion guide](https://github.com/michelbierlaire/teaching_optimization/blob/v0.1.1/SCRIPT_CONVERSION_GUIDE.md) for the cell
 conventions, explicit markers, docstring behavior, migration examples, and
 validation commands.
 

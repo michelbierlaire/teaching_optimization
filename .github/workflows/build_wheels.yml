@@ -1,76 +1,51 @@
-name: Build wheels on multiple OS
+name: Build and publish package
 
 on:
-  workflow_dispatch:
-  release:
-    types: [created]
+  push:
+    tags:
+      - "v*"
 
 jobs:
-  build_sdist:
-    name: Build Source Distribution
-    runs-on: ubuntu-latest  # Source distribution is independent of OS and Python version
+  build:
+    name: Build distributions
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
-      - name: Install build dependencies
-        run: python -m pip install --upgrade pip build
-      - name: Build source distribution
-        run: python -m build --sdist --outdir dist/
-      - name: Upload Source Distribution Artifact
-        uses: actions/upload-artifact@v3
+          python-version: "3.14"
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
-          name: sdist
-          path: dist/*.tar.gz
-
-  build:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12']
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install build dependencies
-      run: python -m pip install --upgrade pip wheel
-    - name: Build wheels
-      run: pip wheel . -w dist
-    - name: Check directory
-      run: ls dist
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: wheels
-        path: dist/teaching_optimization*.whl
+          enable-cache: true
+      - name: Validate lockfile
+        run: uv lock --check
+      - name: Build wheel and source distribution
+        run: uv build --sdist --wheel --out-dir dist/
+      - name: Check distributions
+        run: uvx --from twine twine check dist/*
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/*
 
   pypi-publish:
-    name: upload release to PyPI
-    needs: [build_sdist, build]
+    name: Publish distributions to PyPI
+    needs: build
     runs-on: ubuntu-latest
-    # Specifying a GitHub environment is optional, but strongly encouraged
-    environment: release
+    environment:
+      name: release
+      url: https://pypi.org/p/teaching-optimization
     permissions:
-      # IMPORTANT: this permission is mandatory for trusted publishing
+      contents: read
       id-token: write
     steps:
-      - name: Download Wheel Artifacts
-        uses: actions/download-artifact@v3
+      - name: Download distributions
+        uses: actions/download-artifact@v4
         with:
-          name: wheels
+          name: distributions
           path: dist
-
-      - name: Download sdist Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: sdist
-          path: dist
-
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
